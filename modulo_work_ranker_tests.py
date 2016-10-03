@@ -31,3 +31,4 @@ class ModuloWorkRankerTester(object):
 
 
 run_tests()
+ 

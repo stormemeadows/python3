@@ -143,4 +143,3 @@ class ModuloWordRanker(object):
             self._increment_char_counts_to_idx(i)
 
         return self.rank
-

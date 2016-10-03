@@ -2,13 +2,42 @@
 
 from modulo_calculator import ModuloCalculator
 
+
 class ModuloWordRanker(object):
-    """ Calculates the modulo 'rank' of words (strings). """
+    """ 
+    Calculates the modulo 'rank' of words (strings), using the
+    given modulus. 
+    The 'rank' of a word its placement in lexicographical order 
+    (aka, lexicographic|lexical|dictionary|alphabetical order).
+    See https://en.wikipedia.org/wiki/Lexicographical_order.
+    """
 
-    # This prime is commonly used in coding challenges
-    MODULUS = int(1e9+7)
+    # Used as the default modulus. 
+    MODULUS = int(1e9+7) #this prime is often used in coding challenges
+    
+    
+    @classmethod
+    def rank(cls, word_str):
+        """ Not super useful.. """
+        return cls.ranks(word_str)[word_str]
 
 
+    @classmethod
+    def ranks(cls, *word_strs: dict(type=list, help='a list of strings')
+              ) -> "{word_1:rank_1, ..., word_n:rank_n}":
+        """
+        Calculates the ranks of words in a list.
+        Returns a dictionary of the form:
+          {word_1:rank_1, ..., word_n:rank_n}
+        """
+        d = {}
+        wr = cls()
+        for word in word_strs:
+            d[word] = wr.calc_rank(word)
+        del wr
+        return d
+    
+    
     # WARNING:
     #   Undefined behaviour when modulus is not a prime.
     def __init__(self,
@@ -17,7 +46,6 @@ class ModuloWordRanker(object):
         super(ModuloWordRanker, self).__init__()
         self.mc = ModuloCalculator(modulus)
         self.calc_rank(word_str) # <-- calls _set_word(word_str)
-
 
 
     def __del__(self):
@@ -31,8 +59,7 @@ class ModuloWordRanker(object):
         del self.unique_chars
     #     print(" ** %s is dead **\n"%str(self))
 
-
-
+    
     def _set_word(self, word_str):
         """ Resets everything except for our ModuloCalculator. """
 
@@ -52,60 +79,32 @@ class ModuloWordRanker(object):
         self.word = word_str
 
 
-
-    @classmethod
-    def rank(cls, word_str):
-        """ Not super useful.. """
-        return cls.ranks(word_str)[word_str]
-
-
-
-    @classmethod
-    def ranks(cls, *word_strs: dict(type=list, help='a list of strings')
-              ) -> "{word_1:rank_1, ..., word_n:rank_n}":
-        """
-        Calculates the ranks of words in a list.
-        Returns a dictionary of the form:
-          {word_1:rank_1, ..., word_n:rank_n}
-        """
-        d = {}
-        wr = cls()
-        for word in word_strs:
-            d[word] = wr.calc_rank(word)
-        del wr
-        return d
-
-
-
     def _fact(self, n):
-        """ Defer to the ModuloCalculator. """
-        return self.mc.mod_fact(n)
-
+        """ 'Modulo factorial' """
+        return self.mc.mod_fact(n) # defer to the ModuloCalculator
 
 
     def _inv_fact(self, n):
-        """ Defer to the ModuloCalculator. """
-        return self.mc.mod_inverse_fact(n)
-
+        """ 'Modulo inverse factorial' """
+        return self.mc.mod_inverse_fact(n) # defer to the ModuloCalculator
 
 
     def _calc_permutations(self, l_idx):
         """
         Calculates the number of distinct permutations of word[l_idx:],
-            modded by the modulus.
+        modded by the modulus.
         """
         m = self.mc.mod
         num_perms = self._fact(len(self.word[l_idx:]))
         for c in self.unique_chars:
             if self.char_counts[c] > 1: # since 1! == 0! == 1
 
-                # This commented-out line a lot slower than the equivalent
-                #   one immediately after:
+                # This commented-out line is a lot slower than the equivalent
+                #   one immediately after it:
                 # num_perms = self.mc.multiply(num_perms, self._inv_fact(self.char_counts[c]))
                 num_perms = (num_perms * self._inv_fact(self.char_counts[c]))%m
 
         return num_perms
-
 
 
     def _increment_char_counts_to_idx(self, r_idx):
@@ -114,12 +113,10 @@ class ModuloWordRanker(object):
             self.char_counts[c] += 1
 
 
-
     def _decrement_char_counts_to_idx(self, r_idx):
         """ Decrements each character's count through word[:r_idx]. """
         for c in self.word[:r_idx]:
             self.char_counts[c] -= 1
-
 
 
     def _update_rank(self, c, l_idx):
@@ -128,7 +125,6 @@ class ModuloWordRanker(object):
         # self.rank = self.mc.add(self.rank, self._calc_permutations(l_idx))
         self.rank = (self.rank + self._calc_permutations(l_idx))%self.mc.mod
         self.char_counts[c] += 1
-
 
 
     def calc_rank(self, word_str):

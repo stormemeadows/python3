@@ -20,23 +20,7 @@ class ModuloCalculator(object):
             domain. Integral domains don't have zero-divisors, by definition.
     """
 
-    def __init__(self, modulus):
-        super(ModuloCalculator, self).__init__()
-        self.__set_mod(modulus)
-
-
-    def __del__(self):
-    #     print(" ** %s is dying **"%str(self))
-        del self.mod
-    #     print("max fact call:         ",self._max_call_to_factorial)
-        del self._max_call_to_factorial
-    #     print("unique fact calls:     ",len(self._prev_factorial_calculations))
-        del self._prev_factorial_calculations
-    #     print("unique inv fact calls: ",len(self._prev_inverse_factorial_calculations))
-        del self._prev_inverse_factorial_calculations
-    #     print(" ** %s is dead **\n"%str(self))
-
-
+    
     @staticmethod
     def modulo_inverse(
             m: dict(type=int, help='a prime, otherwise n may not have an inverse'),
@@ -63,45 +47,38 @@ class ModuloCalculator(object):
         ## If our m is prime, we don't need this line either:
         # if r > 1: raise "(%d mod %d)^-1 does not exist!"%(n,m)
         return t if t<1 else t+m
+    
+    
+    def __init__(self, modulus):
+        super(ModuloCalculator, self).__init__()
+        self.__set_mod(modulus)
 
+
+    def __del__(self):
+    #     print(" ** %s is dying **"%str(self))
+        del self.mod
+    #     print("max fact call:         ",self._max_call_to_factorial)
+        del self._max_call_to_factorial
+    #     print("unique fact calls:     ",len(self._prev_factorial_calculations))
+        del self._prev_factorial_calculations
+    #     print("unique inv fact calls: ",len(self._prev_inverse_factorial_calculations))
+        del self._prev_inverse_factorial_calculations
+    #     print(" ** %s is dead **\n"%str(self))
 
 
     def multiplicative_inverse(self,n):
         return ModuloCalculator.modulo_inverse(self.mod,n)
 
 
-
-    def multiply(self,n,k):
-        m = self.mod
-        return ((n%m) * (k%m))%m
-        # return n*k%self.mod
-
-
-
-    def add(self,n,k):
-        m = self.mod
-        return ((n%m) + (k%m))%m
-        # return (n+k)%self.mod
-
-
-
-    def divide(self,n:"dividend",k:"divisor"):
-        return self.multiply(n, multiplicative_inverse(k))
-
-
-
     def __set_mod(self, mod):
         self.mod = mod
         self._max_call_to_factorial = 1
         self._prev_inverse_factorial_calculations = {}
-        self._prev_factorial_calculations         = {1:1} #base case
-                                                          #(we don't need {0:1})
-
+        self._prev_factorial_calculations         = {1:1} #base case (don't need {0:1})
 
 
     def _get_max_computed_factorial(self):
         return self._prev_factorial_calculations[self._max_call_to_factorial]
-
 
 
     def mod_fact(self,n_in):
@@ -116,7 +93,6 @@ class ModuloCalculator(object):
         if n <= k:  # if n <= 1: return 1
             return self._prev_factorial_calculations[n]
 
-
         # An iterative implementation, starting with
         #   our greatest previous call.
         prod = self._prev_factorial_calculations[k]
@@ -128,12 +104,28 @@ class ModuloCalculator(object):
         return prod
 
 
-
     def mod_inverse_fact(self,n):
         if n in self._prev_inverse_factorial_calculations:
             return self._prev_inverse_factorial_calculations[n]
 
         inv_prod = self.multiplicative_inverse(self.mod_fact(n))
         self._prev_inverse_factorial_calculations[n] = inv_prod
+        
         return inv_prod
 
+    
+    def multiply(self,n,k):
+        m = self.mod
+        return ((n%m) * (k%m))%m
+        # return n*k%self.mod
+        
+
+    def add(self,n,k):
+        m = self.mod
+        return ((n%m) + (k%m))%m
+        # return (n+k)%self.mod
+
+
+    def divide(self,n:"dividend",k:"divisor"):
+        return self.multiply(n, multiplicative_inverse(k))
+    

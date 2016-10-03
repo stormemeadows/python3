@@ -14,6 +14,7 @@ class ModuloWorkRankerTester(object):
         self.words = "bookkeeper question".split()
         self.wr = ModuloWordRanker()
 
+        
     def test(self, word):
         print("%s:\n %d"%(word, self.wr.calc_rank(word)))
 
